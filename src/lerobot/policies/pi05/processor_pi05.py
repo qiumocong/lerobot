@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+import os
 from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any
@@ -80,7 +82,21 @@ class Pi05PrepareStateTokenizerProcessorStep(ProcessorStep):
 
         full_prompts = []
         for i, task in enumerate(tasks):
-            cleaned_text = task.strip().replace("_", " ").replace("\n", " ")
+            if isinstance(task, torch.Tensor):
+                task = task.item() if task.numel() == 1 else task.tolist()
+            if isinstance(task, int | float):
+                task_map = {}
+                raw_task_map = os.environ.get("VLA_PI05_TASK_MAP", "")
+                if raw_task_map:
+                    try:
+                        task_map = json.loads(raw_task_map)
+                    except json.JSONDecodeError:
+                        task_map = {}
+                task = task_map.get(
+                    str(int(task)),
+                    os.environ.get("VLA_PI05_TASK", str(task)),
+                )
+            cleaned_text = str(task).strip().replace("_", " ").replace("\n", " ")
             if discretized_states is None:
                 full_prompt = f"Task: {cleaned_text};\nAction: "
             else:

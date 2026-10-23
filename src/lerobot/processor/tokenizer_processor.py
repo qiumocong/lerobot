@@ -24,6 +24,7 @@ token IDs and attention masks, which are then added to the observation dictionar
 from __future__ import annotations
 
 import logging
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -110,6 +111,14 @@ class TokenizerProcessorStep(ObservationProcessorStep):
         elif self.tokenizer_name is not None:
             if AutoTokenizer is None:
                 raise ImportError("AutoTokenizer is not available")
+            # Pi0.5 checkpoints store the Hub tokenizer name.  Permit the
+            # standalone VLA launcher to use a local snapshot offline.
+            local_pi05_tokenizer = os.environ.get("VLA_PI05_TOKENIZER_PATH")
+            if (
+                local_pi05_tokenizer
+                and self.tokenizer_name == "google/paligemma-3b-pt-224"
+            ):
+                self.tokenizer_name = local_pi05_tokenizer
             self.input_tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_name)
         else:
             raise ValueError(
