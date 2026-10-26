@@ -11,7 +11,7 @@ Teleoperate an SO-101/SO-100 follower arm — and record LeRobot datasets — wi
 
 The full narrative guide (how the clutch works, CloudXR setup, headset pairing, tuning, and
 troubleshooting) is in the [LeRobot docs](https://huggingface.co/docs/lerobot/isaac_teleop)
-(source: `docs/source/isaac_teleop.mdx`). This README is the canonical install and usage
+(source: `../../../../.local/docs/source/isaac_teleop.mdx`). This README is the canonical install and usage
 reference.
 
 ## Requirements
